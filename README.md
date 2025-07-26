@@ -45,3 +45,13 @@ ollama(localsetup)
 
 3.Vectordatabase ##inmemory ##ondisk ##cloudbased(eg:AWS bedrock)
 
+## Groq API Key link 
+```
+https://console.groq.com/keys
+```
+
+## Gemini API Key
+```
+https://aistudio.google.com/apikey
+
+```
