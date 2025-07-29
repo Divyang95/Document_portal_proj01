@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 import logging
-import structlog
+# import structlog
 
 class CustomLogger:
     def __init__(self):
