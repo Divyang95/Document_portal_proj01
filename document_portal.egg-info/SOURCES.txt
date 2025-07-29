@@ -7,6 +7,7 @@ document_portal.egg-info/top_level.txt
 exception/__init__.py
 exception/custom_exception.py
 logger/__init__.py
+logger/custom_logger.py
 prompt/__init__.py
 prompt/prompt_library.py
 utils/LLM_utils.py
