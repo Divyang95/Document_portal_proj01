@@ -88,14 +88,14 @@ if __name__ == "__main__":
 
     handler = DocumentHandler()
 
-try:
-    saved_path = handler.save_pdf(dummy_pdf)
-    print(saved_path)
+    try:
+        saved_path = handler.save_pdf(dummy_pdf)
+        print(saved_path)
 
-    content = handler.read_pdf(saved_path)
-    print("PDF Content:")
-    print(content[:500])
+        content = handler.read_pdf(saved_path)
+        print("PDF Content:")
+        print(content[:500])
 
-except Exception as e:
-    print(f"Error: {e}")
+    except Exception as e:
+        print(f"Error: {e}")
 
