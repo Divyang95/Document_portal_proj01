@@ -59,6 +59,7 @@ class DocumentComparatorLLM:
             self.log.error("Error formatting response into dataframe", error= str(e) )
             raise DocumentPortalException("An error ocurred while comparing documents.", sys) 
         
+        
 
 
 
