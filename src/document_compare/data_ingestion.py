@@ -4,25 +4,74 @@ import fitz
 from logger.custom_logger import CustomLogger 
 from exception.custom_exception import DocumentPortalException 
 
-class DocumentComparator:
-    def __init__(self):
-        pass 
+class DocumentIngestion:
+    def __init__(self,base_dir):
+        self.log = CustomLogger().get_logger(__name__)
+        self.base_dir = Path(base_dir)
+        self.base_dir.mkdir(parents=True, exist_ok=True)
 
     def delete_existing_files(self):
         """_
         Deletes existing files at the specified paths.
         """
-        pass 
+        try:
+            if self.base_dir.exists() and self.base_dir.is_dir():
+                for file in self.base_dir.iterdir():
+                    if file.is_file():
+                        file.unlink()
+                        self.log.info("file deleted ", path=str(file))
+                self.log.info("Directory cleaned", directory=str(self.base_dir))
+        except Exception as e:
+            self.log.error(f"Error for deleting existing files : {e}")
+            raise DocumentPortalException("An error occurred while deleting existing file ", sys)
 
-    def save_uploaded_files(self):
+
+    def save_uploaded_files(self, reference_file, actual_file):
         """
         saves uploaded files to a specific directory.
         """
-        pass 
-    def read_pdf(self):
+        try:
+            self.delete_existing_files()
+            self.log.info("Existing files deleted successfully")
+
+            ref_path= self.base_dir/reference_file.name
+            act_path= self.base_dir/actual_file.name 
+            
+            if not reference_file.name.endswith(".pdf") or not actual_file.name.endswith(".pdf"):
+                raise ValueError("Only PDF files are allowed")
+            
+            with open(ref_path, "wb") as f:
+                f.write(reference_file.getbuffer())
+            
+            with open(act_path, "wb") as f:
+                f.write(actual_file.getbuffer())
+
+        except Exception as e:
+            self.log.error(f"Error saving uploaded file: {e}")
+            raise DocumentPortalException("An error occurred while saving uploaded files.",sys)
+         
+    def read_pdf(self, pdf_path:Path)->str:
         """
         Reads a PDF file and extracts text from each page.
         """
-        pass 
-    
+        try:
+            with fitz.open(pdf_path) as doc:
+                if doc.is_encrypted:
+                    raise ValueError("PDF is encrypted and cannot be read")
+                all_text = []
+                for page_num in range(doc.page_count):
+                    page = doc.load_page(page_num)
+                    text = page.get_text()
+                    if text.strip():
+                        all_text.append(f"\n ---Page {page_num + 1} ---\n {text}")
+                self.log.info("PDF read successfully ", file=str(pdf_path), pages=len(all_text))
+                return "\n".join(all_text) 
+            
+
+        
+        except Exception as e :
+            self.log.error(f"Error reading PDF : {e}")
+            raise DocumentPortalException("An error occurred while reading the PDF.", sys)
+
+
 

@@ -30,10 +30,6 @@ class DocumentHandler:
         
 
 
-
-
-
-
     def save_pdf(self, uploaded_file):
         try:
             filename = os.path.basename(uploaded_file.name)
