@@ -13,14 +13,23 @@ Analyze the document:
             
 """)
 
-document_comparison_prompt = ChatPromptTemplate(
+document_comparison_prompt = ChatPromptTemplate.from_template(
     """
     you will be provided with content from two PDF's. Your tasks are as follows:
 
     1. Compare the content in two PDFs
     2. Indentify the difference in PDF and note down the page number
     3. The output you provided must be page wise comparison
-    4. If any page do not have any change, mention as "No change" 
+    4. If any page do not have any change, mention as "No change"
+
+    Input documents:
+
+    {combined_docs}
+
+    Your response should follow this format 
+
+    {format_instruction}
+
     """
 )
 
