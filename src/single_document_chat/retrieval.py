@@ -51,15 +51,22 @@ class ConversationalRAG:
         try:
             llm = ModelLoader().load_llm()  
             self.log.info("LLM loaded successfully", class_name= llm.__class__.__name__)
-            return 
+            return llm
         except Exception as e :
             self.log.error("Error loading LLM via ModelLoader", error= str(e))
             raise DocumentPortalException("Failed to load LLM", sys)
         
 
-    def _get_session_history(self, session_id: str):
+    def _get_session_history(self, session_id: str) -> BaseChatMessageHistory:
         try:
-            pass
+            if "store" not in st.session_state:
+                st.session_state.store = {}
+
+            if session_id not in st.session_state.store:
+                st.session_state.store[session_id] = ChatMessageHistory()
+                self.log.info("New chat session history created", session_id=session_id)
+
+            return st.session_state.store[session_id]
         except Exception as e:
             self.log.error("Failed to access session history", session_id=session_id, error=str(e))
             raise DocumentPortalException("Failed to retrieve session history", sys)
@@ -87,7 +94,7 @@ class ConversationalRAG:
             answer = response.get('answer', "No answer")
             if not answer:
                 self.log.warning("Empty answer received", session_id=self.session_id)
-                
+
             self.log.info("Chain invoked successfully", session_id=self.session_id,
                            user_input=user_input, answer_preview=answer[:150])
             return answer
