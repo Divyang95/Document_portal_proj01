@@ -4,6 +4,8 @@ import os
 import streamlit as st 
 from operator import itemgetter 
 
+from typing import List, Optional 
+
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import BaseMessage 
 from langchain_core.output_parsers import StrOutputParser
@@ -62,9 +64,30 @@ class ConversationalRAG:
             self.log.error("Failed to load retriever from FAISS", error=str(e))
             raise DocumentPortalException("Loading error in ConversationalRAG", sys)
 
-    def invoke(self):
+    def invoke(self, user_input:str, chat_history:Optional[List[BaseMessage]]=None)->str:
+        """
+
+            """
+
         try:
-            pass 
+            chat_history = chat_history or []
+            payload = {"input":user_input, "chat_history":chat_history}
+            answer=self.chain.invoke(payload)
+            if not answer:
+                self.log.warning("No Answer generated", user_input=user_input, session_id=self.session_id)
+                return "No Answer Generated."
+            
+            self.log.info(
+                "chain invoked successfully",
+                user_input=user_input,
+                answer_preview = answer[:150],
+            )
+            return answer 
+            
+        
+
+
+
         except Exception as e :
             self.log.error("Failed to invoke_ConversationalRAG", error=str(e))
             raise DocumentPortalException("Invocation error in ConversationalRAG", sys) 
@@ -86,7 +109,7 @@ class ConversationalRAG:
     def _format_docs(docs):
         return "\n\n".join(d.page_content for d in docs) 
 
-    def _build_lcel_chain(self):
+    def _build_lcel_chain(self): #langchain expression language (pipe operator)
         try:
             # 1)Rewrite the question based on chat history
             question_rewriter = (
