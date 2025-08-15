@@ -26,7 +26,7 @@ class ConversationalRAG:
         try:
             self.log = CustomLogger().get_logger(__name__) 
             self.session_id = session_id
-            self.llm = self._load_llm
+            self.llm = self._load_llm()
             self.contextualize_prompt:ChatPromptTemplate = PROMPT_REGISTRY[PromptType.CONTEXTUALIZE_QUESTION.value]
             self.qa_prompt:ChatPromptTemplate = PROMPT_REGISTRY[PromptType.CONTEXT_QA.value]
             if retriever is None:

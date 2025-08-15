@@ -13,7 +13,7 @@ class DocumentIngestor:
     SUPPORTED_EXTENSIONS = {'.pdf', '.docx', '.txt', '.md'}
     def __init__(self, temp_dir:str = "D:\LLMOPS_Krishnaik\Document_portal_proj01\data\multi_doc_chat",faiss_dir:str='faiss_index', session_id:str|None=None):
         try:
-            self.log = CustomLogger.get_logger(__name__)    
+            self.log = CustomLogger().get_logger(__name__)    
 
             # base dirs
             self.temp_dir = Path(temp_dir) #Convertes temp_dir as path object so that we can apply method over it
@@ -22,7 +22,7 @@ class DocumentIngestor:
             self.faiss_dir.mkdir(parents=True, exist_ok=True)
 
             # sessionized paths
-            self.session_id = session_id or f"session_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4.hex[:8]}"
+            self.session_id = session_id or f"session_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
             self.session_temp_dir = self.temp_dir/self.session_id
             self.session_faiss_dir = self.faiss_dir/self.session_id 
             self.session_temp_dir.mkdir(parents=True, exist_ok=True)
@@ -92,7 +92,7 @@ class DocumentIngestor:
 
             self.log.info("Documents split into chunks", total_chunks=len(chunks), session_id=self.session_id)
             embeddings = self.model_loader.load_embeddings()
-            vectorstore = FAISS.from_documents(documents=chunks, embeddings=embeddings)
+            vectorstore = FAISS.from_documents(documents=chunks, embedding=embeddings)
 
             #Save FAISS index under session folder
             vectorstore.save_local(str(self.session_faiss_dir))
