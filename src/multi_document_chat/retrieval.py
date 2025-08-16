@@ -31,7 +31,7 @@ class ConversationalRAG:
             self.qa_prompt:ChatPromptTemplate = PROMPT_REGISTRY[PromptType.CONTEXT_QA.value]
             if retriever is None:
                 raise ValueError("Retriever can not be None")
-            self.retriever = retriever 
+            self.retriever = retriever  
             self._build_lcel_chain()
             self.log.info("ConversationalRAG initialized", session_id=self.session_id)
 
