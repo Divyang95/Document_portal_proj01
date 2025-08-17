@@ -82,5 +82,5 @@ class ChatIngestor:
     def _split(self):
         pass 
 
-    def built_retriever(self):
+    def build_retriever(self):
          pass   
