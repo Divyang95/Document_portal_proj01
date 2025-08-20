@@ -27,10 +27,20 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
+# frontend and backend running on different ports. by default browsers blocks requests from one origin to another 
+# so your react app tries to fetch data from your backend app browser will block it unless you explicitly 
+# explicitly you should allow it using CORS.
+# Thats why CORS middleware exists to tell browsers that hey its okay. requests from this frontend are allowed
+# allowed to use my api. 
+# It eans middle ware means its a gatekeepr sits between request and respone.
+# every request first goes through the middleware can modify the request.middleware can modify the request   
+# here middle ware use for authentication. CORSMiddleware means to make a connection between two region over the cloud
+# and other parameters to make authentication 
 
 # serve static and template 
 app.mount("/static", StaticFiles(directory="../static"), name='static')
 templates = Jinja2Templates(directory="../templates")
+# This app.mount it is going to be mount to serve static files and Jinja2 is for rendering dynamic html
 
 @app.get('/', response_class=HTMLResponse)
 async def serve_ui(request:Request):
