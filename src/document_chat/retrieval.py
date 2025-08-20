@@ -4,7 +4,8 @@ import os
 import streamlit as st 
 from operator import itemgetter 
 
-from typing import List, Optional 
+from typing import List, Optional, Dict, Any 
+
 
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import BaseMessage 
@@ -22,18 +23,30 @@ from model.models import PromptType
 
 
 class ConversationalRAG:
-    def __init__(self, session_id:str, retriever=None):
+    def __init__(self, session_id:Optional[str], retriever=None):
         try:
-            self.log = CustomLogger().get_logger(__name__) 
+            self.log = CustomLogger().get_logger(__name__)
             self.session_id = session_id
+
+            # Load LLM and prompts once
             self.llm = self._load_llm()
-            self.contextualize_prompt:ChatPromptTemplate = PROMPT_REGISTRY[PromptType.CONTEXTUALIZE_QUESTION.value]
-            self.qa_prompt:ChatPromptTemplate = PROMPT_REGISTRY[PromptType.CONTEXT_QA.value]
-            if retriever is None:
-                raise ValueError("Retriever can not be None")
-            self.retriever = retriever  
-            self._build_lcel_chain()
+            self.contextualize_prompt: ChatPromptTemplate = PROMPT_REGISTRY[
+                PromptType.CONTEXTUALIZE_QUESTION.value
+            ]
+            self.qa_prompt: ChatPromptTemplate = PROMPT_REGISTRY[
+                PromptType.CONTEXT_QA.value
+            ]
+
+            # Lazy pieces
+            self.retriever = retriever
+            self.chain = None
+            if self.retriever is not None:
+                self._build_lcel_chain()
+
             self.log.info("ConversationalRAG initialized", session_id=self.session_id)
+        except Exception as e:
+            self.log.error("Failed to initialize ConversationalRAG", error=str(e))
+            raise DocumentPortalException("Initialization error in ConversationalRAG", sys)
 
 
         
@@ -41,24 +54,46 @@ class ConversationalRAG:
             self.log.error("Failed to intialize ConversationalRAG", error=str(e))
             raise DocumentPortalException("Initialization error in ConversationalRAG", sys)
 
-    def load_retriever_from_faiss(self,index_path:str):
+    def load_retriever_from_faiss(
+        self,
+        index_path: str,
+        k: int = 5,
+        index_name: str = "index",
+        search_type: str = "similarity",
+        search_kwargs: Optional[Dict[str, Any]] = None,
+    ):
         """
-        Load a FAISS vectorestore from disk and convert to retriever
-        """ 
+        Load FAISS vectorstore from disk and build retriever + LCEL chain.
+        """
         try:
-            embeddings = ModelLoader().load_embeddings()
             if not os.path.isdir(index_path):
-                raise FileNotFoundError(f"FAISS index directory not found:{index_path}")
-            vectorstore=FAISS.load_local(
+                raise FileNotFoundError(f"FAISS index directory not found: {index_path}")
+
+            embeddings = ModelLoader().load_embeddings()
+            vectorstore = FAISS.load_local(
                 index_path,
                 embeddings,
-                allow_dangerous_deserialization=True, #Only if you trust the index 
+                index_name=index_name,
+                allow_dangerous_deserialization=True,  # ok if you trust the index
             )
-            self.retriever = vectorstore.as_retriever(search_type='similarity', search_kwargs={'k':5})
-            self.log.info("FAISS retriever loaded successfully", index_path=index_path,session_id=self.session_id)
 
+            if search_kwargs is None:
+                search_kwargs = {"k": k}
+
+            self.retriever = vectorstore.as_retriever(
+                search_type=search_type, search_kwargs=search_kwargs
+            )
+            self._build_lcel_chain()
+
+            self.log.info(
+                "FAISS retriever loaded successfully",
+                index_path=index_path,
+                index_name=index_name,
+                k=k,
+                session_id=self.session_id,
+            )
             return self.retriever
-        
+
         except Exception as e:
             self.log.error("Failed to load retriever from FAISS", error=str(e))
             raise DocumentPortalException("Loading error in ConversationalRAG", sys)

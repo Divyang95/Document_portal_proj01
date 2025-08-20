@@ -19,6 +19,7 @@ from src.document_chat.retrieval import ConversationalRAG
 
 FAISS_BASE = os.getenv("FAISS_BASE", "faiss_index")
 UPLOAD_BASE = os.getenv("UPLOAD_BASE", 'data')
+FAISS_INDEX_NAME = os.getenv("FAISS_INDEX_NAME", "index")  # <--- keep consistent with save_local()
 
 app=FastAPI(title="Document Portal API", version="0.1")
 
@@ -85,7 +86,7 @@ async def analyze_document(file:UploadFile=File(...))->Any:
     except HTTPException:
         raise 
     except Exception as e:
-        return HTTPException(status_code=500, details=f"Analysis failed: {e}")
+        return HTTPException(status_code=500, detail=f"Analysis failed: {e}")
     
 @app.post('/compare')
 async def compare_documents(reference: UploadFile = File(...), actual: UploadFile= File(...))->Any:
@@ -101,7 +102,7 @@ async def compare_documents(reference: UploadFile = File(...), actual: UploadFil
     except HTTPException:
         raise 
     except Exception as e:
-        raise HTTPException(status_code=500, details=f"comparison failed : {e}")
+        raise HTTPException(status_code=500, detail=f"comparison failed : {e}")
     
 @app.post("/chat/index")
 async def chat_build_index(
@@ -145,7 +146,7 @@ async def chat_query(
         
         # Intialize LCEL-style pipeline 
         rag = ConversationalRAG(session_id=session_id)
-        rag.load_retriever_from_faiss(index_dir)
+        rag.load_retriever_from_faiss(index_dir, k=k, index_name=FAISS_INDEX_NAME)  # build retriever + chain
 
         response = rag.invoke(question, chat_history=[])
         return {

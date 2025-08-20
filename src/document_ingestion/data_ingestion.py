@@ -151,7 +151,7 @@ class ChatIngestor:
             raise DocumentPortalException("Initialization error in chatingestor", e) from e 
          
 
-    def resolve_dir(self, base:Path):
+    def _resolve_dir(self, base:Path):
         if self.use_session:
             d = base / self.session_id 
             d.mkdir(parents=True, exist_ok=True)
@@ -189,7 +189,7 @@ class ChatIngestor:
             added = fm.add_documents(chunks)
             self.log.info("FAISS Index updated", added=added, index=str(self.faiss_dir))
 
-            return vs.as_retriever(search_type='similarity', search_kwargs={'k',k})
+            return vs.as_retriever(search_type='similarity', search_kwargs={'k':k}) 
         
 
         except Exception as e:
