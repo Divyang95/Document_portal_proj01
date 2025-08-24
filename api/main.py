@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware 
 from fastapi.staticfiles import StaticFiles 
 from fastapi.templating import Jinja2Templates 
+from pathlib import Path
 
 from src.document_ingestion.data_ingestion import (
     DocHandler,
@@ -18,7 +19,7 @@ from src.document_compare.document_comparator import DocumentComparatorLLM
 from src.document_chat.retrieval import ConversationalRAG 
 
 FAISS_BASE = os.getenv("FAISS_BASE", "faiss_index")
-UPLOAD_BASE = os.getenv("UPLOAD_BASE", 'data')
+UPLOAD_BASE = os.getenv("UPLOAD_BASE", 'data')  
 FAISS_INDEX_NAME = os.getenv("FAISS_INDEX_NAME", "index")  # <--- keep consistent with save_local()
 
 app=FastAPI(title="Document Portal API", version="0.1")
@@ -40,11 +41,15 @@ app.add_middleware(
 # here middle ware use for authentication. CORSMiddleware means to make a connection between two region over the cloud
 # and other parameters to make authentication 
 
+BASE_DIR = Path(__file__).resolve().parent.parent 
+
 # serve static and template 
-app.mount("/static", StaticFiles(directory="../static"), name='static')
-templates = Jinja2Templates(directory="../templates")
+app.mount("/static", StaticFiles(directory=str(BASE_DIR/ "static")), name='static')
+templates = Jinja2Templates(directory=str(BASE_DIR/ "templates"))
 # This app.mount it is going to be mount to serve static files and Jinja2 is for rendering dynamic html
 
+# bydefining response class as HTMLResponse we are saying to browser that our response is HTMLResponse
+# so browser understands that i have to display it as webpage. we are saying to browser that it is webpage
 @app.get('/', response_class=HTMLResponse)
 async def serve_ui(request:Request):
     # templates/index.html ko render karega 
@@ -93,7 +98,8 @@ async def compare_documents(reference: UploadFile = File(...), actual: UploadFil
     try:
         dc = DocumentComparator()
         ref_path, act_path = dc.save_uploaded_files(FastAPIFileAdapter(reference), FastAPIFileAdapter(actual)) 
-        _ = ref_path, act_path
+        _ = ref_path, act_path  #here developer wants tell linteer that dont show erroe for ref_patha nd act_path
+        # i know that ref_path and act_path are unused. we know but dont show errors.
         combined_text = dc.combine_documents()
         comp = DocumentComparatorLLM()
         df = comp.compare_documents(combined_text)

@@ -25,6 +25,8 @@ SUPPORTED_EXTENSIONS = {".pdf", ".docx", ".txt"}
 SUPPORTED_EXTENSIONS = {".pdf", ".docx", ".txt"}
 
 def load_documents(paths: Iterable[Path]) -> List[Document]:
+    # iterable means any python object : list, tuple, dictionary, set any of above object is iterable
+    # iterable means any python object
     """Load docs using appropriate loader based on extension."""
     docs: List[Document] = []
     try:

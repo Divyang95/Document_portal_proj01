@@ -52,12 +52,12 @@ class FaissManager:
 
         self.model_loader = model_loader or ModelLoader()
         self.emb = self.model_loader.load_embeddings()
-        self.vs:Optional[FAISS]=None #vs means vector store
+        self.vs:Optional[FAISS]=None #vs means vector store 
         
         
 
     def _exists(self)->bool:
-        return (self.index_dir/'index.faiss').exists() and (self.index_dir/"index.pk1").exists()   
+        return (self.index_dir/'index.faiss').exists() and (self.index_dir/"index.pkl").exists()   
     
     # deduplication to avoid deduplication. means remove duplicates from databse this concept is used
     # as we use .get for dictionary to get key value pair access from dictionary we use dict_name['key']
@@ -137,7 +137,10 @@ class ChatIngestor:
             self.temp_base = Path(temp_base); self.temp_base.mkdir(parents=True, exist_ok=True)
             self.faiss_base = Path(faiss_base); self.faiss_base.mkdir(parents=True, exist_ok=True)
 
-            self.temp_dir = self._resolve_dir(self.temp_base)
+            self.temp_dir = self._resolve_dir(self.temp_base) # resolve_dir is checking that use_session
+            # use_session_dir is true or not if true then make sesssion_id folder inside data and 
+            # if use_session_dir is false then there is no file like session_id inside data folder 
+            # files will be saved direcctly inside data folder
             self.faiss_dir = self._resolve_dir(self.faiss_base)
 
             self.log.info("ChatIngestor Initialized", session_id=self.session_id,
@@ -171,7 +174,9 @@ class ChatIngestor:
                         chunk_overlap:int=200,
                         k:int=5,):
         try:
-            paths = save_uploaded_files(uploaded_files, self.temp_dir)
+            paths = save_uploaded_files(uploaded_files, self.temp_dir) # it is list of path of files at which 
+            # we have copied documents to that file means there are content also there inside the file
+            # inside file content also there so this is list of paths
             docs = load_documents(paths)
             if not docs:
                 raise ValueError("No valid documents loaded")

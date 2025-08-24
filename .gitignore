@@ -7,4 +7,6 @@ logs/
 *.pyc 
 test.py 
 data/ 
-archive/
+archive/    
+faiss_index/
+data/
