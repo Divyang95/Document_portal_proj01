@@ -70,6 +70,9 @@ class FaissManager:
         src = md.get("source") or md.get("file_path")
         rid = md.get('row_id')
 
+
+        
+
         if src is not None:
             return f"{src}::{'' if rid is None else rid}"
         
@@ -176,7 +179,7 @@ class ChatIngestor:
             if not docs:
                 raise ValueError("No valid documents loaded")
             chunks = self._split(docs, chunk_size=chunk_size, chunk_overlap=chunk_overlap)
-            fm = FaissManager(self.faiss_dir, self.model_loader)
+            fm = FaissManager(self.faiss_dir, self.model_loader)    
 
             texts = [c.page_content for c in chunks]
             metas = [c.metadata for c in chunks] 
@@ -186,7 +189,7 @@ class ChatIngestor:
             except Exception:
                 vs = fm.load_or_create(texts=texts, metadatas=metas)
             
-            added = fm.add_documents(chunks)
+            added = fm.add_documents(chunks) # **********
             self.log.info("FAISS Index updated", added=added, index=str(self.faiss_dir))
 
             return vs.as_retriever(search_type='similarity', search_kwargs={'k':k}) 

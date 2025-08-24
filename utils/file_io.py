@@ -11,12 +11,15 @@ from typing import Iterable, List, Optional, Dict, Any
 from utils.model_loader import ModelLoader
 from logger.custom_logger import CustomLogger
 from exception.custom_exception import DocumentPortalException
+from zoneinfo import ZoneInfo
+
 log = CustomLogger().get_logger(__name__)
 SUPPORTED_EXTENSIONS = {".pdf", ".docx", ".txt"} 
 
 # File I/O + Loading 
 def _session_id(prefix:str="session")->str:
-    return f"{prefix}_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
+    ist = ZoneInfo("Asia/Kolkata")
+    return f"{prefix}_{datetime.now(ist).strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
 
 def save_uploaded_files(uploaded_files:Iterable, target_dir:Path)->List[Path]:
     """Save uploaded files (streamlit like) and return local paths"""
