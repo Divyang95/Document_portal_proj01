@@ -1,33 +1,30 @@
-# use original python image. In which language developed this project is python. 
-#   
-FROM python:3.10-slim  
+# Use official Python image
+FROM python:3.10-slim
 
-# set environment variables here 1 is yes and 0 means no 
+# Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# set workdir it is work directory 
-WORKDIR /app 
+# Set workdir
+WORKDIR /app
 
-# Install OS dependencies 
-RUN apt-get update && apt-get install -y build-essential poppler-utils && rm -rf /var/lib/apt/lists/* 
+# Install OS dependencies
+RUN apt-get update && apt-get install -y build-essential poppler-utils && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements from local directory to  current container  directory as we have written dot(.) 
-COPY requirements.txt . 
+# Copy requirements
+COPY requirements.txt .
 
-COPY .env . 
+# Copy project files
+COPY . .
 
-# Copy project files copy entire code of local directory to this container current directory  
-COPY . .      
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-# install dependencies 
-RUN pip install --no-cache-dir -r requirements.txt 
+# Expose port
+EXPOSE 8080
 
-# Expose port 
-EXPOSE 8080 
+# Run FastAPI with uvicorn
+#CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8080", "--reload"]
 
-# Run fastapi with unicorn 
-#CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8080", "--reload"] 
-
-# replace last CMD in prod 
+# Replace last CMD in prod
 CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8080", "--workers", "4"]
