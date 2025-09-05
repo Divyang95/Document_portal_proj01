@@ -28,11 +28,16 @@
       ],
       "secrets": [
         {
-          "name": "API_KEYS",
-          "valueFrom": "arn:aws:secretsmanager:ap-south-1:863851241638:secret:apikeyliveclass-Lej31c"
+          "name": "GOOGLE_API_KEY",
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:863851241638:secret:apikeyliveclass-Lej31c:GOOGLE_API_KEY::"
+        },
+        {
+          "name": "GROQ_API_KEY",
+          "valueFrom": "arn:aws:secretsmanager:ap-south-1:863851241638:secret:apikeyliveclass-Lej31c:GROQ_API_KEY::"
         }
+      ]
         
-      ],
+      ,
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
