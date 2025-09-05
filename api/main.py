@@ -18,6 +18,17 @@ from src.document_compare.document_comparator import DocumentComparatorLLM
 from src.document_chat.retrieval import ConversationalRAG 
 from utils.document_ops import FastAPIFileAdapter, read_pdf_via_handler 
 
+import logging
+
+# Configure logger
+logging.basicConfig(
+    level=logging.INFO,  # or DEBUG for more details
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+)
+
+log = logging.getLogger("document-portal")
+
+
 FAISS_BASE = os.getenv("FAISS_BASE", "faiss_index")
 UPLOAD_BASE = os.getenv("UPLOAD_BASE", 'data')
 FAISS_INDEX_NAME = os.getenv("FAISS_INDEX_NAME", "index")  # <--- keep consistent with save_local()
