@@ -75,7 +75,8 @@ async def analyze_document(file:UploadFile=File(...))->Any:
     except HTTPException:
         raise 
     except Exception as e:
-        return HTTPException(status_code=500, detail=f"Analysis failed: {e}")
+        log.exception("Error during document analysis")
+        raise HTTPException(status_code=500, detail=f"Analysis failed: {e}")
     
 @app.post('/compare')
 async def compare_documents(reference: UploadFile = File(...), actual: UploadFile= File(...))->Any:
