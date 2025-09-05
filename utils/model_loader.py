@@ -59,7 +59,7 @@ class ModelLoader:
 
         log.info("Loading LLM...")
         #default provider ya ENV var se choose karo
-        provider_key = os.getenv("LLM_PROVIDER", "groq") #Default groq 
+        provider_key = os.getenv("LLM_PROVIDER", "google") #Default groq 
         
         if provider_key not in llm_block:
             log.error("LLM provider not found in config", provider_key=provider_key)
